@@ -6,6 +6,7 @@ library(rvest)
 library(dplyr)
 library(ggplot2)
 library(data.table)
+library(scales)
 
 # Create tibbles for each player
 #########################################################################
@@ -89,12 +90,19 @@ career_pts$g_date = as.Date(career_pts$date)
 # Create a sequence to represent the game number of each players career
 career_pts$game_num <- with(career_pts, ave(playername, playername, FUN = seq_along))
 
+
 # Create plot
-ggplot(data=career_pts, aes(x=factor(game_num), y=csum, color=playername)) +
-  geom_point(size=1, color='red') +
-  # scale_x_continuous(breaks=seq(0,1400,100)) +
-  theme_minimal() +
-  labs(x = "Game #", y = "Career Points")
-  # shadow_mark()
+career_pts %>%
+  mutate(game_num = as.numeric(game_num)) %>%
+  ggplot(aes(x=game_num, y=csum, color=playername)) +
+    geom_line() +
+    #geom_point(size=1) +
+    scale_x_continuous(label=scales::number_format(big.mark=','), breaks=scales::breaks_pretty(n=10)) +
+    scale_y_continuous(label=scales::number_format(big.mark=','), breaks=scales::breaks_pretty(n=10)) +
+    theme_classic() +
+    labs(x = "Game #", y = "Career Points") +
+    #shadow_mark() +
+    theme(legend.title = element_blank())
+
 
 
